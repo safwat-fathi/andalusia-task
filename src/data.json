@@ -2,76 +2,24 @@
 	{
 		"id": 1,
 		"name": "Warehouse 1",
-		"products_types": [
+		"products": [				
 			{
-				"id": 10,
-				"name": "Type A",
-				"products": [
-					{
-						"id": 100,
-						"name": "Product 1",
-						"items": 21
-					},
-					{
-						"id": 104,
-						"name": "Product 2",
-						"items": 11
-					}
-				]
+				"id": 100,
+				"name": "Product 1",
+				"items": 21,
+				"type": "Type A"
 			},
 			{
-				"id": 12,
-				"name": "Type B",
-				"products": [
-					{
-						"id": 70,
-						"name": "Product 7",
-						"items": 71
-					},
-					{
-						"id": 18,
-						"name": "Product 20",
-						"items": 94
-					}
-				]
-			}
-		]
-	},
-	{
-		"id": 2,
-		"name": "Warehouse 2",
-		"products_types": [
-			{
-				"id": 5,
-				"name": "Type F",
-				"products": [
-					{
-						"id": 400,
-						"name": "Product 80",
-						"items": 4
-					},
-					{
-						"id": 50,
-						"name": "Product L",
-						"items": 0
-					}
-				]
+				"id": 104,
+				"name": "Product 2",
+				"items": 11,
+				"type": "Type A"
 			},
 			{
-				"id": 16,
-				"name": "Type T",
-				"products": [
-					{
-						"id": 33,
-						"name": "Product 90",
-						"items": 32
-					},
-					{
-						"id": 60,
-						"name": "Product 44",
-						"items": 2001
-					}
-				]
+				"id": 103,
+				"name": "Product 5",
+				"items": 0,
+				"type": "Type D"
 			}
 		]
 	}

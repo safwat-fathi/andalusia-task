@@ -41,42 +41,82 @@
         <div class="product-search_select">
           <label for="type">Type</label>
           <select
-            name=""
             id="type"
             :style="{
               backgroundImage: 'url(/img/arrow-select.png)',
             }"
+            :disabled="selectedWarehouse == '' || allProducts"
+            v-model="selectedType"
           >
             <option value="">Select UOM Type</option>
-            <!-- <option v-for="" value="">UOM Type 1</option> -->
+            <option v-for="type in types" :key="type" :value="type">
+              {{ type }}
+            </option>
           </select>
-          <VueMultiselect v-model="value" :options="['awdwad', 'awdawd']">
-          </VueMultiselect>
         </div>
 
         <div class="product-search_checkbox">
-          <input type="checkbox" id="balance" />
+          <input type="checkbox" id="balance" v-model="zeroBalance" />
           <label for="balance">Show Zero Balance</label>
         </div>
       </div>
 
       <div class="product-classification">
         <h3>product classification</h3>
-        <div class="select-type">
-          <label class="container"
-            >all product
-            <input type="radio" checked="checked" name="radio" />
-            <span class="checkmark"></span>
-          </label>
-          <label class="container"
-            >specific product
-            <input type="radio" name="radio" />
-            <span class="checkmark"></span>
-          </label>
+        <div style="display: flex; align-items: flex-end; height: 4rem;">
+          <div class="select-type">
+            <label
+              :class="[selectedWarehouse == '' ? 'disabled' : '', 'container']"
+              >all product
+              <input
+                type="radio"
+                checked="checked"
+                name="radio"
+                :disabled="selectedWarehouse == ''"
+                @change="handleProductClass"
+              />
+              <span class="checkmark"></span>
+            </label>
+            <label
+              :class="[selectedWarehouse == '' ? 'disabled' : '', 'container']"
+              >specific product
+              <input
+                type="radio"
+                name="radio"
+                :disabled="selectedWarehouse == ''"
+                @change="handleProductClass"
+              />
+              <span class="checkmark"></span>
+            </label>
+          </div>
+
+          <div class="product-search_select" v-if="!allProducts">
+            <label for="product">Product</label>
+            <multiselect
+              v-model="selectedName"
+              :options="productsNames"
+              :multiple="true"
+              placeholder="Select product or search product"
+              label="name"
+              track-by="name"
+              @select="handleName"
+            >
+              <!-- <template slot="selection" slot-scope="{ values, search, isOpen }">
+								<span
+                  class="multiselect__single"
+                  v-if="values.length &amp;&amp; !isOpen"
+                  >{{ values.length }} options selected</span>
+								</template> -->
+            </multiselect>
+          </div>
         </div>
       </div>
 
-      <button>Search</button>
+      <button @click="handleSearch">Search</button>
+
+      <div v-if="noResult">
+        <h3>No results</h3>
+      </div>
     </section>
 
     <section class="section">
@@ -92,42 +132,142 @@
         </div>
         <h3 class="title">Products Details</h3>
       </div>
+
+      <div>
+        <div
+          style="display: flex;
+justify-content: center;
+align-items: center;"
+          v-if="!filteredProducts.length"
+        >
+          <img src="/img/noDataFoundGreen.svg" alt="" />
+        </div>
+
+        <table v-else>
+          <!-- headers -->
+          <tr>
+            <th>Product</th>
+            <th>On-Hand</th>
+            <th>Type</th>
+          </tr>
+          <!-- search -->
+          <tr>
+            <td>
+              <input type="text" />
+            </td>
+            <td>
+              <input type="text" />
+            </td>
+            <td>
+              <input type="text" />
+            </td>
+          </tr>
+          <!-- data -->
+          <!-- v-if="!filteredProducts.length" -->
+          <tr v-for="product in filteredProducts" :key="product.id">
+            <td>{{ product.name }}</td>
+            <td>{{ product.items }}</td>
+            <td>{{ product.type }}</td>
+          </tr>
+        </table>
+      </div>
     </section>
   </section>
 </template>
 
 <script>
 import data from "@/data";
-import VueMultiselect from "vue-multiselect";
+import Multiselect from "vue-multiselect";
 
 export default {
   name: "Product",
   components: {
-    VueMultiselect,
+    Multiselect,
   },
   data() {
     return {
-      value: "",
       warehouses: data,
+      types: [],
+      warehouseProducts: [],
+      filteredProducts: [],
       selectedWarehouse: "",
-      selectedTypes: "",
+      productsNames: [],
+      selectedType: "",
+      selectedName: "",
+      allProducts: true,
+      zeroBalance: false,
+      noResult: false,
     };
   },
   mounted() {
     // console.log(data);
   },
   methods: {
+    handleName(value, id) {
+      // console.log(value);
+      // console.log(this.selectedName);
+      // this.selectedName.push(value);
+    },
     handleWarehouseChange(e) {
-      this.selectedTypes = this.selectedWarehouse.products_types;
-      console.log(this.selectedWarehouse);
-      console.log(this.selectedTypes);
-      // this.selectedTypes = this.warehouses.map((warehouse, idx) => {
-      //   return warehouse.name == this.selectedWarehouse
-      //     ? warehouse.products_types
-      //     : null;
-      // });
+      if (this.selectedWarehouse == "") {
+        this.warehouseProducts = [];
+        this.filteredProducts = [];
+        this.selectedType = "";
+        this.types = [];
+        return;
+      }
 
-      // console.log(this.selectedTypes);
+      this.warehouseProducts = this.selectedWarehouse.products;
+      // get types
+      let typesFromProducts = this.warehouseProducts.map(
+        (product) => product.type
+      );
+      // set unique types
+      this.types = [...new Set(typesFromProducts)];
+      this.productsNames = this.warehouseProducts.map((product) => ({
+        name: product.name,
+        id: product.id,
+      }));
+    },
+    handleProductClass() {
+      this.allProducts = !this.allProducts;
+    },
+    handleFilterProductByName(value, id) {
+      // console.log(this.warehouseProducts);
+      // console.log(this.filteredProducts);
+    },
+    handleSearch() {
+      // reset no result
+      this.noResult = false;
+
+      this.filteredProducts = this.warehouseProducts;
+
+      // apply filters
+      if (this.zeroBalance) {
+        this.filteredProducts = this.filteredProducts.filter(
+          (product) => product.items == 0
+        );
+      }
+
+      if (this.selectedType != "") {
+        this.filteredProducts = this.filteredProducts.filter(
+          (product) => product.type == this.selectedType
+        );
+      }
+
+      if (this.selectedName != "") {
+        let names = this.selectedName.map((el) => el.name);
+
+        this.filteredProducts = this.filteredProducts.filter(
+          (product) => names.indexOf(product.name) >= 0
+        );
+      }
+
+      if (!this.filteredProducts.length) {
+        this.noResult = !this.noResult;
+      }
+
+      console.log(this.filteredProducts);
     },
   },
 };
@@ -276,5 +416,30 @@ export default {
       margin: 0;
     }
   }
+}
+
+// disabled radio button
+.disabled {
+  color: #ccc;
+
+  input:checked ~ .checkmark {
+    border: 2px solid #ccc !important;
+
+    &::after {
+      background: #ccc;
+    }
+  }
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
 }
 </style>
