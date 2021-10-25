@@ -35,8 +35,6 @@
             >
               {{ warehouse.name }}
             </option>
-            <!-- <option value="Warehouse 1">Warehouse 1</option>
-            <option value="Warehouse 2">Warehouse 2</option> -->
           </select>
         </div>
 
@@ -50,9 +48,10 @@
             }"
           >
             <option value="">Select UOM Type</option>
-            <option value="">UOM Type 1</option>
-            <option value="">UOM Type 2</option>
+            <!-- <option v-for="" value="">UOM Type 1</option> -->
           </select>
+          <VueMultiselect v-model="value" :options="['awdwad', 'awdawd']">
+          </VueMultiselect>
         </div>
 
         <div class="product-search_checkbox">
@@ -99,12 +98,16 @@
 
 <script>
 import data from "@/data";
+import VueMultiselect from "vue-multiselect";
 
 export default {
   name: "Product",
-  components: {},
+  components: {
+    VueMultiselect,
+  },
   data() {
     return {
+      value: "",
       warehouses: data,
       selectedWarehouse: "",
       selectedTypes: "",
@@ -129,6 +132,8 @@ export default {
   },
 };
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 
 <style scoped lang="scss">
 .product-search {
